@@ -19,6 +19,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
+using System.Net.Mail;
+using System.Net;
+using Newtonsoft.Json.Linq;
+using sib_api_v3_sdk.Api;
+using sib_api_v3_sdk.Model;
+using System.Diagnostics;
+using sib_api_v3_sdk.Client;
 
 namespace ChatApp.Areas.Identity.Pages.Account
 {
@@ -110,7 +117,7 @@ namespace ChatApp.Areas.Identity.Pages.Account
         }
 
 
-        public async Task OnGetAsync(string returnUrl = null)
+        public async System.Threading.Tasks.Task OnGetAsync(string returnUrl = null)
         {
             ReturnUrl = returnUrl;
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
@@ -127,17 +134,29 @@ namespace ChatApp.Areas.Identity.Pages.Account
                 user.LastName = Input.LastName;
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
-                user.EmailConfirmed = true;
                 var result = await _userManager.CreateAsync(user, Input.Password);
 
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User created a new account with password.");
 
+                    var userId = await _userManager.GetUserIdAsync(user);
+                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+                    var callbackUrl = Url.Page(
+                        "/Account/ConfirmEmail",
+                        pageHandler: null,
+                        values: new { area = "Identity", userId = userId, code = code, returnUrl = returnUrl },
+                        protocol: Request.Scheme);
 
-                    await _signInManager.SignInAsync(user, isPersistent: false);
-                    return LocalRedirect(returnUrl);
-                    
+                    SendEmail(Input.Email, "Confirm your email",
+                        $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+
+                    if (_userManager.Options.SignIn.RequireConfirmedAccount)
+                    {
+                        await _signInManager.SignInAsync(user, isPersistent: false);
+                        return LocalRedirect(returnUrl);
+                    }
                 }
                 foreach (var error in result.Errors)
                 {
@@ -149,6 +168,35 @@ namespace ChatApp.Areas.Identity.Pages.Account
             return Page();
         }
 
+        private bool SendEmail(string email, string subject, string confirmLink)
+        {
+
+            Configuration.Default.ApiKey["api-key"] = "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";
+
+            var apiInstance = new TransactionalEmailsApi();
+            string SenderName = "ChatApp";
+            string SenderEmail = "wulaia.anri@gmail.com";
+            SendSmtpEmailSender Email = new SendSmtpEmailSender(SenderName, SenderEmail);
+            string ToName = "John Doe";
+            SendSmtpEmailTo smtpEmailTo = new SendSmtpEmailTo(email, ToName);
+            List<SendSmtpEmailTo> To = new List<SendSmtpEmailTo>();
+            To.Add(smtpEmailTo);
+
+            try
+            {
+                var sendSmtpEmail = new SendSmtpEmail(Email, To, null, null, confirmLink, null, subject);
+                CreateSmtpEmail result = apiInstance.SendTransacEmail(sendSmtpEmail);
+                return true;
+
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e.Message);
+                Console.WriteLine(e.Message);
+                Console.ReadLine();
+            }
+            return true;
+        }
         private SampleUser CreateUser()
         {
             try
