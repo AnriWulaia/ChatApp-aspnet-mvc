@@ -9,7 +9,7 @@ builder.Services.AddDbContext<DBContextSample>(options =>
 
 builder.Services.AddDefaultIdentity<SampleUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<DBContextSample>();
-
+builder.Services.AddScoped<EmailService>();
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 

@@ -37,13 +37,15 @@ namespace ChatApp.Areas.Identity.Pages.Account
         private readonly IUserEmailStore<SampleUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
+        private readonly EmailService _emailService;
 
         public RegisterModel(
             UserManager<SampleUser> userManager,
             IUserStore<SampleUser> userStore,
             SignInManager<SampleUser> signInManager,
             ILogger<RegisterModel> logger,
-            IEmailSender emailSender)
+            IEmailSender emailSender,
+            EmailService emailService)
         {
             _userManager = userManager;
             _userStore = userStore;
@@ -51,6 +53,7 @@ namespace ChatApp.Areas.Identity.Pages.Account
             _signInManager = signInManager;
             _logger = logger;
             _emailSender = emailSender;
+            _emailService = emailService;
         }
 
         /// <summary>
@@ -149,14 +152,18 @@ namespace ChatApp.Areas.Identity.Pages.Account
                         values: new { area = "Identity", userId = userId, code = code, returnUrl = returnUrl },
                         protocol: Request.Scheme);
 
-                    SendEmail(Input.Email, "Confirm your email",
-                        $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
-
-                    if (_userManager.Options.SignIn.RequireConfirmedAccount)
+                    var emailSent = await _emailService.SendEmailAsync(Input.Email, "Confirm your email", $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>");
+                    if (emailSent)
                     {
-                        await _signInManager.SignInAsync(user, isPersistent: false);
-                        return LocalRedirect(returnUrl);
+                        // Redirect to a page confirming that the email has been sent
+                        return RedirectToPage("EmailSentConfirmation", new { email = Input.Email, returnUrl = returnUrl });
                     }
+                    else
+                    {
+                        // Handle the case where email sending failed (e.g., show an error message)
+                        ModelState.AddModelError(string.Empty, "Email sending failed. Please try again.");
+                    }
+
                 }
                 foreach (var error in result.Errors)
                 {
