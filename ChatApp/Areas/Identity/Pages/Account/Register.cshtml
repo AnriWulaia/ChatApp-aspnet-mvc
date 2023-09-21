@@ -13,9 +13,9 @@
             <hr />
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-            <div class="form-floating">
-                
-                <input type="file" name="ImageFile" />
+            <div class="form-floating pb-2">
+                <h3>Profile Picture:</h3>
+                <input asp-for="Input.ImageFile" type="file" name="ImageFile" />
             </div>
             <div class="form-floating">
                 <input asp-for="Input.FirstName" class="form-control" aria-required="true" />

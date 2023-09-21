@@ -26,6 +26,7 @@ using sib_api_v3_sdk.Api;
 using sib_api_v3_sdk.Model;
 using System.Diagnostics;
 using sib_api_v3_sdk.Client;
+using Microsoft.EntityFrameworkCore;
 
 namespace ChatApp.Areas.Identity.Pages.Account
 {
@@ -90,6 +91,8 @@ namespace ChatApp.Areas.Identity.Pages.Account
             [Display(Name = "Last Name")]
             [StringLength(100, ErrorMessage = "Max 100 characters.")]
             public string LastName { get; set; }
+
+            public string ImageFile { get; set; }
             /// <summary>
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
@@ -175,35 +178,7 @@ namespace ChatApp.Areas.Identity.Pages.Account
             return Page();
         }
 
-        private bool SendEmail(string email, string subject, string confirmLink)
-        {
 
-            Configuration.Default.ApiKey["api-key"] = "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";
-
-            var apiInstance = new TransactionalEmailsApi();
-            string SenderName = "ChatApp";
-            string SenderEmail = "wulaia.anri@gmail.com";
-            SendSmtpEmailSender Email = new SendSmtpEmailSender(SenderName, SenderEmail);
-            string ToName = "John Doe";
-            SendSmtpEmailTo smtpEmailTo = new SendSmtpEmailTo(email, ToName);
-            List<SendSmtpEmailTo> To = new List<SendSmtpEmailTo>();
-            To.Add(smtpEmailTo);
-
-            try
-            {
-                var sendSmtpEmail = new SendSmtpEmail(Email, To, null, null, confirmLink, null, subject);
-                CreateSmtpEmail result = apiInstance.SendTransacEmail(sendSmtpEmail);
-                return true;
-
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine(e.Message);
-                Console.WriteLine(e.Message);
-                Console.ReadLine();
-            }
-            return true;
-        }
         private SampleUser CreateUser()
         {
             try
