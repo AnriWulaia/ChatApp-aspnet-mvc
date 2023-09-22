@@ -84,7 +84,7 @@ namespace ChatApp.Areas.Identity.Pages.Account
         {
             [Required]
             [Display(Name = "First Name")]
-            [StringLength(100, ErrorMessage ="Max 100 characters.")]
+            [StringLength(100, ErrorMessage = "Max 100 characters.")]
             public string FirstName { get; set; }
 
             [Required]
@@ -92,7 +92,7 @@ namespace ChatApp.Areas.Identity.Pages.Account
             [StringLength(100, ErrorMessage = "Max 100 characters.")]
             public string LastName { get; set; }
 
-            public string ImageFile { get; set; }
+            public IFormFile ImageFile { get; set; }
             /// <summary>
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
@@ -138,10 +138,11 @@ namespace ChatApp.Areas.Identity.Pages.Account
                 var user = CreateUser();
                 user.FirstName = Input.FirstName;
                 user.LastName = Input.LastName;
+                user.ImageFile = await SaveImageAsync(Input.ImageFile);
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
                 var result = await _userManager.CreateAsync(user, Input.Password);
-
+                
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User created a new account with password.");
@@ -178,6 +179,19 @@ namespace ChatApp.Areas.Identity.Pages.Account
             return Page();
         }
 
+        private async Task<byte[]> SaveImageAsync(IFormFile imageFile)
+        {
+            if (imageFile != null)
+            {
+                using (var memoryStream = new MemoryStream())
+                {
+                    await imageFile.CopyToAsync(memoryStream);
+                    return memoryStream.ToArray();
+                }
+            }
+            return new byte[0];
+        }
+
 
         private SampleUser CreateUser()
         {
@@ -191,6 +205,11 @@ namespace ChatApp.Areas.Identity.Pages.Account
                     $"Ensure that '{nameof(SampleUser)}' is not an abstract class and has a parameterless constructor, or alternatively " +
                     $"override the register page in /Areas/Identity/Pages/Account/Register.cshtml");
             }
+        }
+        public byte[] GetImage()
+        {
+            var user = _userManager.FindByNameAsync(User.Identity.Name).Result; 
+            return user.ImageFile;
         }
 
         private IUserEmailStore<SampleUser> GetEmailStore()

@@ -8,14 +8,14 @@
 
 <div class="row">
     <div class="col-md-4">
-        <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+        <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post" enctype="multipart/form-data">
             <h2>Create a new account.</h2>
             <hr />
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
             <div class="form-floating pb-2">
                 <h3>Profile Picture:</h3>
-                <input asp-for="Input.ImageFile" type="file" name="ImageFile" />
+                <input asp-for="Input.ImageFile" type="file"/>
             </div>
             <div class="form-floating">
                 <input asp-for="Input.FirstName" class="form-control" aria-required="true" />
@@ -46,7 +46,12 @@
         </form>
     </div>
 </div>
+@if (User.Identity.IsAuthenticated)
+{
 
+    <img id="image" src="data:image/png;base64,@Convert.ToBase64String(Model.GetImage())" alt="Image from Database" />
+    <h1>@ViewData["Name"] zd </h1>
+}
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }

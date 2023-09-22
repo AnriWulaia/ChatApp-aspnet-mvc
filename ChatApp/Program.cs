@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ChatApp.Areas.Identity.Data;
+using ChatApp.Areas.Identity.Pages.Account;
+
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DBContextSampleConnection") ?? throw new InvalidOperationException("Connection string 'DBContextSampleConnection' not found.");
 
@@ -10,6 +12,8 @@ builder.Services.AddDbContext<DBContextSample>(options =>
 builder.Services.AddDefaultIdentity<SampleUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<DBContextSample>();
 builder.Services.AddScoped<EmailService>();
+builder.Services.AddScoped<ISharedService, SharedService>();
+builder.Services.AddHttpContextAccessor();
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
