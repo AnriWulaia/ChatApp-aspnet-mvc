@@ -1,0 +1,18 @@
+﻿@page
+@model ChatApp.Areas.Identity.Pages.Account.Manage.ProfileModel
+@using ChatApp.Areas.Identity.Pages
+@inject ISharedService SharedService;
+@{
+    ViewData["Title"] = "Manage";
+}
+<div class="d-flex">
+    <form id="ProfilePictureChange" method="post" enctype="multipart/form-data" asp-page-handler="changeProfileImage">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="form-floating">
+            <h5>Change Profile Picture:</h5>
+            <img id="image" src="data:image/png;base64,@Convert.ToBase64String(SharedService.GetImage())" alt="Image from Database" style="width:150px; height:150px;border-radius:10px;" />
+            <input type="file" name="imageFile"/>
+        </div>
+        <button type="submit" class="btn btn-primary mt-2" style="margin-left:10px">Save Changes</button>
+    </form>
+</div>

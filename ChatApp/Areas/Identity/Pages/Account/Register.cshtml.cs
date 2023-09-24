@@ -206,11 +206,6 @@ namespace ChatApp.Areas.Identity.Pages.Account
                     $"override the register page in /Areas/Identity/Pages/Account/Register.cshtml");
             }
         }
-        public byte[] GetImage()
-        {
-            var user = _userManager.FindByNameAsync(User.Identity.Name).Result; 
-            return user.ImageFile;
-        }
 
         private IUserEmailStore<SampleUser> GetEmailStore()
         {

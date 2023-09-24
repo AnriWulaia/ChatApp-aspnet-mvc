@@ -1,14 +1,19 @@
-﻿@page "/Home"
+﻿@{
+    ViewData["Title"] = "Home";
+}
 @using Microsoft.AspNetCore.Identity
 @using ChatApp.Areas.Identity.Data
+@using ChatApp.Areas.Identity.Pages.Account
 
+@inject ISharedService SharedService
 @inject UserManager<SampleUser> UserManager
 
 <div class="text-center">
     <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
 
 </div>
 <div asp-if="@User.Identity.IsAuthenticated">
-    <h1>@UserManager.GetUserName(User)</h1>
+    <h1>@UserManager.GetUserName(User)
+    @SharedService.GetFirstName()
+    </h1>
 </div>
