@@ -5,14 +5,57 @@
 @{
     ViewData["Title"] = "Manage";
 }
-<div class="d-flex">
-    <form id="ProfilePictureChange" method="post" enctype="multipart/form-data" asp-page-handler="changeProfileImage">
-        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+<div class="d-flex flex-wrap">
+    <form id="ProfilePictureChange" method="post" enctype="multipart/form-data" asp-page-handler="UpdateImage">
+        <div asp-validation-summary="ModelOnly" class="text-danger" ></div>
         <div class="form-floating">
             <h5>Change Profile Picture:</h5>
             <img id="image" src="data:image/png;base64,@Convert.ToBase64String(SharedService.GetImage())" alt="Image from Database" style="width:150px; height:150px;border-radius:10px;" />
-            <input type="file" name="imageFile"/>
+            <input type="file" name="imageFile" accept=".png, .jpg, .jpeg" />
         </div>
-        <button type="submit" class="btn btn-primary mt-2" style="margin-left:10px">Save Changes</button>
+        <button type="submit" class="btn btn-primary mt-2"  style="margin-left:10px">Save Changes</button>
     </form>
+    <div class="form-floating input-group mt-4">
+        <input class="form-control" disabled type="text" id="Username" name="Username" value="@SharedService.GetFullName()" />
+        <div class="input-group-append">
+            <span class="h-100 input-group-text text-success font-weight-bold">✓</span>
+        </div>
+        <label class="form-label" for="Username">Username</label>
+    </div>
+    <div class="form-floating input-group mt-2">
+        <input class="form-control" disabled type="text" id="Email" name="Email" value="@User.Identity.Name" />
+        <div class="input-group-append">
+            <span class="h-100 input-group-text text-success font-weight-bold">✓</span>
+        </div>
+        <label class="form-label" for="Email">Email</label>
+    </div>
 </div>
+
+
+<hr />
+<h3>Change your password</h3>
+<hr />
+<div class="row">
+    <div class="col-md-6">
+        <form id="changePassword" method="post" asp-page-handler="ChangePassword">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-floating">
+                <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" />
+                <label asp-for="Input.Password" class="form-label"></label>
+                <span asp-validation-for="Input.Password" class="text-danger"></span>
+            </div>
+            <div class="form-floating">
+                <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" />
+                <label asp-for="Input.ConfirmPassword" class="form-label"></label>
+                <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+            </div>
+            <button type="submit" class="w-100 btn btn-lg btn-primary mt-2">Change</button>
+        </form>
+
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
