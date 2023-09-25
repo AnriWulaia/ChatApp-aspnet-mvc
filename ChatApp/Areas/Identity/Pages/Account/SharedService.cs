@@ -37,7 +37,7 @@ namespace ChatApp.Areas.Identity.Pages.Account
             if (username != null)
             {
                 var user = _userManager.FindByNameAsync(username).Result;
-                return user.FirstName + " " + user.LastName;
+                return $"{user.FirstName} {user.LastName}";
             }
             return "Guest"; // Handle the case when there's no authenticated user
         }
